@@ -23,7 +23,7 @@ untubo.pull((data, cb) => {
 
   t.deepEqual(data, expected.shift())
 
-  if (expected.lenth === 0) {
+  if (expected.length === 0) {
     untubo.stop()
   }
 })
