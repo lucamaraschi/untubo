@@ -1,0 +1,29 @@
+{
+  "name": "untubo",
+  "version": "0.1.0",
+  "description": "",
+  "main": "untubo.js",
+  "scripts": {
+    "test": "standard | snazzy && tap test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucamaraschi/untubo.git"
+  },
+  "author": "Luca Maraschi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lucamaraschi/untubo/issues"
+  },
+  "homepage": "https://github.com/lucamaraschi/untubo#readme",
+  "dependencies": {
+    "joi": "^10.6.0",
+    "node-rdkafka": "^2.0.0"
+  },
+  "devDependencies": {
+    "pre-commit": "^1.2.2",
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.3",
+    "tap": "^10.7.2"
+  }
+}
