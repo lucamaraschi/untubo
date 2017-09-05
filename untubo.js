@@ -4,22 +4,6 @@ const Kafka = require('node-rdkafka')
 const { inherits } = require('util')
 const { EventEmitter } = require('events')
 
-/*
-const Joi = require('joi')
-const schema = Joi.object().keys({
-    'client.id': Joi.string().alphanum().required(),
-    'metadata.broker.list': Joi.string().alphanum().required(),
-    'compression.codec': Joi.string().alphanum(),
-    'retry.backoff.ms': Joi.integer().min(0),
-    'message.send.max.retries': Joi.integer().min(0),
-    'socket.keepalive.enable': Joi.boolean(),
-    'queue.buffering.max.messages': Joi.integer().min(0),
-    'queue.buffering.max.ms': Joi.integer().min(0),
-    'batch.num.messages': Joi.integer().min(0),
-    'dr_cb': Joi.boolean()
-})
-*/
-
 function Untubo (opts) {
   opts = opts || {}
 
