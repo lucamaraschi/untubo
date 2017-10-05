@@ -25,15 +25,11 @@ t.tearDown(function () {
 t.plan(expected.length)
 
 untubo.consumer.poll(function (data, commit) {
-  console.log('DATA!')
-  console.log(data)
   commit()
   t.deepEqual(data, expected.shift())
 })
 
-console.log('push')
 untubo.producer.push({hello: 'world', count: 0})
 setTimeout(function () {
-  console.log('push')
   untubo.producer.push({hello: 'world', count: 1})
 }, 1000)
