@@ -2,7 +2,6 @@
 
 const Kafka = require('node-rdkafka')
 
-
 module.exports = function (opts, errCb) {
   const topic = opts.topic
   const key = opts.key
@@ -34,6 +33,13 @@ module.exports = function (opts, errCb) {
     producer.on('error', errCb)
   }
 
+  function _push (payload) {
+    try {
+      producer.produce(topic, null, Buffer.from(payload), key, Date.now())
+    } catch (err) {
+      errCb(err)
+    }
+  }
 
   /**
    * push a message
@@ -42,16 +48,13 @@ module.exports = function (opts, errCb) {
     payload = JSON.stringify(payload)
 
     if (!ready) {
-      return errCb('Push failed: connection not ready')
-    }
-
-    try {
-      producer.produce(topic, null, Buffer.from(payload), key, Date.now())
-    } catch (err) {
-      errCb(err)
+      init(function () {
+        _push(payload)
+      })
+    } else {
+      _push(payload)
     }
   }
-
 
   /**
    * disconnect the producer
@@ -60,11 +63,9 @@ module.exports = function (opts, errCb) {
     producer.disconnect(cb)
   }
 
-
   return {
     init: init,
     push: push,
     stop: stop
   }
 }
-

@@ -10,14 +10,13 @@ module.exports = function (opts, errCb) {
   delete opts.topic
   delete opts.key
 
-
   /**
    * begin polling, as data is reveived call the dataCb for each message.
    * the client of this library is responsible for calling the commit callback
    * function. In the case of an error, no data will be emitted and the message
    * will be comitted.
    */
-  function poll (dataCb) {
+  function _poll (dataCb) {
     if (!ready) { return errCb('Error: consumer not ready, ensure that init is called before attempting poll') }
 
     consumer.on('data', function (msg) {
@@ -36,7 +35,6 @@ module.exports = function (opts, errCb) {
     consumer.subscribe([topic])
     consumer.consume()
   }
-
 
   /**
    * initalize the consumer for polling in flow mode
@@ -59,6 +57,15 @@ module.exports = function (opts, errCb) {
     consumer.on('error', errCb)
   }
 
+  function poll (dataCb) {
+    if (!ready) {
+      init(function () {
+        _poll(dataCb)
+      })
+    } else {
+      _poll(dataCb)
+    }
+  }
 
   /**
    * stop all poll activites and discounect the client
@@ -70,11 +77,9 @@ module.exports = function (opts, errCb) {
     }
   }
 
-
   return {
     init: init,
     poll: poll,
     stop: stop
   }
 }
-

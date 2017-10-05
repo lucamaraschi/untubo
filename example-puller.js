@@ -7,19 +7,14 @@ const options = {
   'key': 'testKey'
 }
 
-
 const untubo = require('./untubo')(options, function (err) {
   console.log('Kafka Error: ' + err)
 })
 
-
-untubo.consumer.init(function () {
-  untubo.consumer.poll(function (data, commit) {
-    console.log('DATA: ', data)
-    commit()
-  })
+untubo.consumer.poll(function (data, commit) {
+  console.log('DATA: ', data)
+  commit()
 })
-
 
 process.once('SIGINT', function () {
   console.log('stopping...')
@@ -27,4 +22,3 @@ process.once('SIGINT', function () {
     console.log('stopped')
   })
 })
-
