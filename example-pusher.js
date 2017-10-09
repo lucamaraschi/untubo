@@ -3,7 +3,7 @@
 const options = {
   'metadata.broker.list': '127.0.0.1:9092',
   'group.id': 'kafka1',
-  'topic': 'j2dlq',
+  'topic': 'test',
   'key': 'testKey'
 }
 
