@@ -11,10 +11,16 @@ const untubo = require('./untubo')(options, function (err) {
   console.log('Kafka Error: ' + err)
 })
 
-untubo.consumer.poll(function (data, commit) {
-  console.log('DATA: ', data)
-  commit()
-}, true)
+
+function doPoll () {
+  untubo.consumer.poll(function (data, commit) {
+    console.log('DATA: ', data)
+    commit()
+  }, false)
+  setTimeout(function () {
+    doPoll()
+  }, 1000)
+}
 
 process.once('SIGINT', function () {
   console.log('stopping...')
@@ -22,3 +28,5 @@ process.once('SIGINT', function () {
     console.log('stopped')
   })
 })
+
+doPoll()

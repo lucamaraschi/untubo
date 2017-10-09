@@ -6,6 +6,7 @@ module.exports = function (opts, errCb) {
   const topic = opts.topic
   var consumer
   var ready = false
+  var handlers = false
 
   delete opts.topic
   delete opts.key
@@ -16,24 +17,31 @@ module.exports = function (opts, errCb) {
    * function. In the case of an error, no data will be emitted and the message
    * will be comitted.
    */
-  function _poll (dataCb) {
+  function _poll (dataCb, forever) {
     if (!ready) { return errCb('Error: consumer not ready, ensure that init is called before attempting poll') }
 
-    consumer.on('data', function (msg) {
-      var json
-      try {
-        json = JSON.parse(msg.value)
-      } catch (err) {
-        consumer.commitMessage(msg)
-        return errCb(err)
-      }
+    if (!handlers) {
+      consumer.on('data', function (msg) {
+        var json
+        try {
+          json = JSON.parse(msg.value)
+        } catch (err) {
+          consumer.commitMessage(msg)
+          return errCb(err)
+        }
 
-      dataCb(json, function () {
-        consumer.commitMessage(msg)
+        dataCb(json, function () {
+          consumer.commitMessage(msg)
+        })
       })
-    })
-    consumer.subscribe([topic])
-    consumer.consume()
+      handlers = true
+    }
+
+    if (forever) {
+      consumer.consume()
+    } else {
+      consumer.consume(1)
+    }
   }
 
   /**
@@ -51,19 +59,20 @@ module.exports = function (opts, errCb) {
 
     consumer.once('ready', function () {
       ready = true
+      consumer.subscribe([topic])
       readyCb()
     })
     consumer.on('event.error', errCb)
     consumer.on('error', errCb)
   }
 
-  function poll (dataCb) {
+  function poll (dataCb, forever) {
     if (!ready) {
       init(function () {
-        _poll(dataCb)
+        _poll(dataCb, forever)
       })
     } else {
-      _poll(dataCb)
+      _poll(dataCb, forever)
     }
   }
 
@@ -78,7 +87,6 @@ module.exports = function (opts, errCb) {
   }
 
   return {
-    init: init,
     poll: poll,
     stop: stop
   }
