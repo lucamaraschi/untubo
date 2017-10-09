@@ -1,33 +1,35 @@
 'use strict'
 
+// test requires kafka to be running!!
 const t = require('tap')
 const options = {
   'metadata.broker.list': '127.0.0.1:9092',
-  'group.id': 'untubo-tests-1',
-  'topic': 'untubo-tests'
+  'group.id': 'kafka1',
+  'topic': 'j2dlq',
+  'key': 'testKey'
 }
-
-const untubo = require('./')(options)
 const expected = [
-  { hello: 'world', i: 0 },
-  { hello: 'world', i: 1 }
+  { hello: 'world', count: 0 },
+  { hello: 'world', count: 1 }
 ]
+const untubo = require('./untubo')(options, function (err) {
+  console.log('Kafka Error: ' + err)
+  t.fail()
+})
 
-t.tearDown(untubo.stop.bind(untubo))
+t.tearDown(function () {
+  untubo.producer.stop()
+  untubo.consumer.stop()
+})
+
 t.plan(expected.length)
 
-untubo.pull((data, cb) => {
-  // we must confirm the message before
-  // any assertion, or we will crash badly
-  cb()
-
+untubo.consumer.poll(function (data, commit) {
+  commit()
   t.deepEqual(data, expected.shift())
-
-  if (expected.length === 0) {
-    untubo.stop()
-  }
 })
 
-untubo.on('consumer', () => {
-  expected.forEach((data) => untubo.push(data))
-})
+untubo.producer.push({hello: 'world', count: 0})
+setTimeout(function () {
+  untubo.producer.push({hello: 'world', count: 1})
+}, 1000)

@@ -4,22 +4,26 @@ const options = {
   'metadata.broker.list': '127.0.0.1:9092',
   'group.id': 'kafka1',
   'topic': 'test',
-  key: 'testKey'
+  'key': 'testKey'
 }
 
-const kafkesque = require('./untubo')(options)
-
+const untubo = require('./untubo')(options, function (err) {
+  console.log('Kafka Error: ' + err)
+})
+var interval
 var count = 0
-var interval = setInterval(function () {
-  kafkesque.push({hello: 'world', count})
+
+interval = setInterval(function () {
+  console.log('pushing...')
+  untubo.producer.push({hello: 'world', count})
   console.log('sent', count)
   count++
-}, 500)
+}, 1000)
 
 process.once('SIGINT', function () {
   clearInterval(interval)
-  console.log('closing')
-  kafkesque.stop(() => {
-    console.log('closed')
+  console.log('stopping...')
+  untubo.producer.stop(function () {
+    console.log('stopped')
   })
 })
